@@ -1,12 +1,4 @@
-/*
- * Copyright 2016, GeoSolutions Sas.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import { DragDropContext as dragDropContext } from 'react-dnd';
@@ -28,12 +20,49 @@ import isArray from 'lodash/isArray';
 
 import './appPolyfill';
 
+import Theme from '../theme/Theme';
+
 const DefaultAppLoaderComponent = () => (
     <span>
         <div className="_ms2_init_spinner _ms2_init_center"><div></div></div>
         <div className="_ms2_init_text _ms2_init_center">Loading MapStore</div>
     </span>
 );
+
+const AppWithThemeToggle = ({ appComponent: AppComponent, ...props }) => {
+
+    const [appTheme, setAppTheme] = useState('default');
+    const [isToggled, setIsToggled] = useState(false);
+
+    const toggleButtonStyle = {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        padding: '10px',
+        backgroundColor: isToggled ? 'black' : 'white',
+        color: isToggled ? 'white' : 'black',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        zIndex: 1000,
+    };
+
+    return (
+        <>
+            <Theme theme={appTheme} />
+            <AppComponent {...props} />
+            <button
+                style={toggleButtonStyle}
+                onClick={() => {
+                    setAppTheme(prevAppTheme => prevAppTheme === 'default' ? 'dark' : 'default');
+                    setIsToggled(!isToggled);
+                }}
+            >
+                Theme
+            </button>
+        </>
+    );
+};
 
 /**
  * Standard MapStore2 application component
@@ -76,7 +105,7 @@ class StandardApp extends React.Component {
     };
 
     state = {
-        initialized: false
+        initialized: false,
     };
 
     addProjDefinitions(config) {
@@ -132,23 +161,24 @@ class StandardApp extends React.Component {
                 onInit(config);
             }
         });
-
     }
 
     render() {
         const {plugins, requires} = this.props.pluginsDef;
         const {appStore, initialActions, appComponent, mode, ...other} = this.props;
-        const App = dragDropContext(html5Backend)(this.props.appComponent);
-        const Loader = this.props.loaderComponent;
+        const App = dragDropContext(html5Backend)(AppWithThemeToggle);
+
         return this.state.initialized
             ? <Provider store={this.store}>
                 <App
                     {...other}
+                    appComponent={this.props.appComponent}
                     plugins={{ ...PluginsUtils.getPlugins(plugins), requires }}
                 />
             </Provider>
-            : <Loader />;
+            : <this.props.loaderComponent />;
     }
+
     afterInit = () => {
         if (this.props.printingEnabled) {
             this.store.dispatch(loadPrintCapabilities(ConfigUtils.getConfigProp('printUrl')));
@@ -176,12 +206,7 @@ class StandardApp extends React.Component {
             this.afterInit(config);
         }
     };
-    /**
-     * It returns an object of the same structure of the initialState but replacing strings like "{someExpression}" with the result of the expression between brackets.
-     * @param {object} state the object to parse
-     * @param {object} context context for expression
-     * @return {object} the modified object
-    */
+
     parseInitialState = (state, context) => {
         return Object.keys(state || {}).reduce((previous, key) => {
             return { ...previous, ...{ [key]: isObject(state[key]) ?
