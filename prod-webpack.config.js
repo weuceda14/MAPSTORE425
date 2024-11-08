@@ -64,7 +64,14 @@ module.exports = require('./MapStore2/build/buildConfig')({
             inject: 'body',
             hash: true,
             filename: 'dashboard-embedded.html'
-        })
+        }),
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, 'wrapperTemplate.html'),
+            filename: 'wrapper.html',
+            inject: "body",
+            hash: true,
+            publicPath: 'dist/', // Make sure this is correct for your dev environment
+          })          
     ],
     alias: {
         "@mapstore/patcher": path.resolve(__dirname, "node_modules", "@mapstore", "patcher"),
