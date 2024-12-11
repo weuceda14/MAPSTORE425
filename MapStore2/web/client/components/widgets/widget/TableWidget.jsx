@@ -104,3 +104,106 @@ export default getWidgetFilterRenderers(({
     </WidgetContainer>
 
     ));
+
+    //possible solution for passing entire dataset.
+    //endpoint might not be correct OR this method might not be good because dataset is large
+    /* const TableWidget = (props) => {
+    const [fullDataset, setFullDataset] = useState([]);
+
+    useEffect(() => {
+        const fetchFullDataset = async () => {
+            try {
+                const response = await fetch("http://71.200.185.55:8081/geoserver/geoservertest/wms?getAll=true"); // Adjust URL as needed
+                const data = await response.json();
+                const allFeatures = data.features; // Assuming features are in this field
+                setFullDataset(allFeatures);
+            } catch (error) {
+                console.error("Error fetching full Dataset:", error);
+            }
+        };
+
+        fetchFullDataset();
+    }, []);
+
+return getWidgetFilterRenderers(({
+    id,
+    title,
+    loading,
+    confirmDelete = false,
+    enableColumnFilters = false,
+    headerStyle,
+    icons,
+    topRightItems,
+    toggleDeleteConfirm = () => { },
+    onDelete = () => { },
+    gridEvents = () => {},
+    pageEvents = {
+        moreFeatures: () => {}
+    },
+    describeFeatureType,
+    filterRenderers,
+    columnSettings,
+    features: fullDataset,
+    layer,
+    size,
+    pages,
+    error,
+    pagination = {},
+    dataGrid = {},
+    virtualScroll = true,
+    gridOpts = defaultGridOpts,
+    options = {},
+    dateFormats,
+    gridTools
+}) =>
+    (<WidgetContainer
+        id={`widget-chart-${id}`}
+        title={title}
+        headerStyle={headerStyle}
+        icons={icons}
+        isDraggable={dataGrid.isDraggable}
+        confirmDelete={confirmDelete}
+        onDelete={onDelete}
+        toggleDeleteConfirm={toggleDeleteConfirm}
+        topRightItems={topRightItems}
+        options={options}>
+        <BorderLayout
+            footer={pagination.totalFeatures ? (
+                <div className={"widget-footer"}>
+                    {loading ? <span style={{ "float": "right"}}><LoadingSpinner /></span> : null}
+                    {error === undefined &&
+                    <span className={"result-info"} ><Message
+                        msgId={"featuregrid.resultInfoVirtual"}
+                        msgParams={{ total: pagination.totalFeatures }} /></span>}
+                </div>) : null}
+        >
+            <FeatureGrid
+                emptyRowsView={() => (<EmptyRowsView loading={loading}>
+                    <WidgetEmptyMessage messageId="featuregrid.noFeaturesAvailable" glyph="features-grid"/>
+                </EmptyRowsView>)}
+                gridEvents={gridEvents}
+                sortable
+                defaultSize={false}
+                columnSettings={columnSettings}
+                pageEvents={pageEvents}
+                virtualScroll={virtualScroll}
+                enableColumnFilters={enableColumnFilters}
+                filterRenderers={filterRenderers}
+                fields={layer?.fields}
+                features={features}
+                pages={pages}
+                error={error}
+                size={size}
+                rowKey="id"
+                describeFeatureType={describeFeatureType}
+                pagination={pagination}
+                gridOpts={gridOpts}
+                options={options}
+                tools={gridTools}       // if geom prop is existing show zoom icon
+                dateFormats={dateFormats}/>
+        </BorderLayout>
+    </WidgetContainer>
+
+    ));
+}
+**/

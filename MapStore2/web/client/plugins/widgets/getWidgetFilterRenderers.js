@@ -8,7 +8,7 @@
 
 import { find } from 'lodash';
 import { compose, mapPropsStream, withProps, withPropsOnChange } from 'recompose';
-
+//FOLDER!!! filterRenderers
 import { getFilterRenderer } from '../../components/data/featuregrid/filterRenderers';
 import { getAttributeFields, getAttributesNames } from '../../utils/FeatureGridUtils';
 
@@ -35,8 +35,8 @@ const mergeQuickFiltersStream = compose(
 
 );
 
-const getFilterComponent = ({field = {}, options, localType, attributeName, quickFilterStream$}) => compose(
-    withProps({quickFilterStream$, attributeName, options}),
+const getFilterComponent = ({field = {}, options, localType, attributeName, quickFilterStream$, features}) => compose(
+    withProps({quickFilterStream$, features, attributeName, options}),
     mergeQuickFiltersStream
 )(getFilterRenderer({name: field.filterRenderer?.name, type: localType, options: field.filterRenderer?.options}));
 
@@ -59,13 +59,13 @@ const withQuickFiltersStream = compose(
 export const getWidgetFilterRenderers = compose(
     withQuickFiltersStream,
     withPropsOnChange(
-        ["layer", "describeFeatureType", "options"],
-        ({ layer = {}, describeFeatureType, options, quickFilterStream$} = {}) => {
+        ["layer", "describeFeatureType", "options", "features"],
+        ({ layer = {}, describeFeatureType, options, quickFilterStream$, features} = {}) => {
             const fields = layer?.fields || [];
             return describeFeatureType ?
                 {filterRenderers: getAttributeFields(describeFeatureType).reduce( (prev, {localType, name: attributeName}) => {
                     const field = find(fields, {name: attributeName});
-                    const filterComp = getFilterComponent({field, options, localType, attributeName, quickFilterStream$});
+                    const filterComp = getFilterComponent({field, options, localType, attributeName, quickFilterStream$, features});
                     return {...prev, [attributeName]: filterComp};
                 }, {})}
                 : {};
